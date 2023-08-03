@@ -6,16 +6,22 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  provider          = "postgresql"
+  url               = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
   shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
 }
 
+model Breed {
+  id       Int    @id @default(autoincrement())
+  name     String @unique @db.VarChar(255)
+  imageUrl String @db.VarChar(255)
+  Vote     Vote?
+}
+
 model Vote {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  dogBreed String @db.VarChar(255) @unique
-  votes Int @db.Integer
+  id      Int   @id @default(autoincrement())
+  breed   Breed @relation(fields: [breedId], references: [id])
+  breedId Int   @unique
+  votes   Int   @db.Integer
 }

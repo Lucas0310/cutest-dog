@@ -1,5 +1,10 @@
+import { revalidatePath } from 'next/cache'
+import { handleVote } from './actions'
 import Card from './components/Card'
 import { DogResponse, DogBreed } from './types'
+import { prisma } from './utils/prisma'
+import Link from 'next/link'
+import Loading from './loading'
 
 const getAllBreeds = async () => {
   const response = await fetch('https://dog.ceo/api/breeds/list/all')
@@ -26,13 +31,18 @@ const getIndexTuple = (breedsLength: number) => {
 const getDogBreedWithImage = async (dog: DogResponse) => {
   const breed = dog.breed
   const subBreed = dog.subBreed.length > 0 ? dog.subBreed[Math.floor(Math.random() * dog.subBreed.length)] : null
-  const displayName = subBreed ? `${subBreed} ${breed}` : dog.breed
+  const name = subBreed ? `${subBreed} ${breed}` : dog.breed
+  const dbBreed = await prisma.breed.findFirst({ where: { name } })
+
+  if (dbBreed) {
+    return dbBreed as DogBreed
+  }
 
   const slug = subBreed ? `${breed}/${subBreed}` : `${breed}`
   const response = await fetch(`https://dog.ceo/api/breed/${slug}/images/random`)
-  const  image = await response.json()
+  const image = await response.json()
 
-  return { breed, subBreed, displayName, image: image.message } as DogBreed
+  return { breed, subBreed, name, imageUrl: image.message } as DogBreed
 }
 
 const getDogsTuple = async () => {
@@ -44,15 +54,25 @@ const getDogsTuple = async () => {
   return [dog1, dog2]
 }
 
+const voteHandler = async (dog: DogBreed) => {
+  'use server'
+  await handleVote(dog)
+  revalidatePath('/')
+}
+
 export default async function Home() {
   const [dog1, dog2] = await getDogsTuple()
 
+  if(!dog1 || !dog2) return <Loading/>
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Which dog is the cutest?
+    <main>
+      <h1 className='text-center'>Which dog is the cutest?</h1>
       <div className='flex justify-center items-center'>
-        <Card dog={dog1} />
-        <Card dog={dog2} />
+        <Card {...{ dog: dog1, voteHandler }} />
+        <Card {...{ dog: dog2, voteHandler }} />
+      </div>
+      <div className='flex items-center justify-center'>
+        <Link className='p-2 bg-rose-600 rounded-lg hover:bg-slate-200' href={'/ranking'}>Ranking</Link>
       </div>
     </main>
   )
