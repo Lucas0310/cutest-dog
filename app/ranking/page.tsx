@@ -1,14 +1,16 @@
-import Link from "next/link"
 import { prisma } from "../utils/prisma"
 import Image from 'next/image'
+import { cache } from 'react'
 
-const getRanking = async () => {
+export const revalidate = 5 * 60
+
+const getRanking = cache(async () => {
     return prisma.vote.findMany(
         {
             include: { breed: true },
             orderBy: { votes: 'desc' }
         })
-}
+})
 
 export default async function Ranking() {
     const votes = await getRanking()
