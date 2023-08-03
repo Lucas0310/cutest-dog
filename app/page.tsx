@@ -63,7 +63,7 @@ const voteHandler = async (dog: DogBreed) => {
 export default async function Home() {
   const [dog1, dog2] = await getDogsTuple()
 
-  if(!dog1 || !dog2) return <Loading/>
+  if (!dog1 || !dog2) return <Loading />
   return (
     <main>
       <h1 className='text-center'>Which dog is the cutest?</h1>
@@ -72,7 +72,7 @@ export default async function Home() {
         <Card {...{ dog: dog2, voteHandler }} />
       </div>
       <div className='flex items-center justify-center'>
-        <Link className='p-2 bg-rose-600 rounded-lg hover:bg-slate-200' href={'/ranking'}>Ranking</Link>
+        <Link className='p-2 bg-rose-600 rounded-lg hover:bg-slate-200' href='/ranking' prefetch={false}>Ranking</Link>
       </div>
     </main>
   )
