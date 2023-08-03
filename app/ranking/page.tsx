@@ -22,9 +22,9 @@ export default async function Ranking() {
                         <th>Votes</th>
                     </tr>
                 </thead>
-                {votes.map(vote => (
-                    <tbody>
-                        <tr className="text-center">
+                <tbody>
+                    {votes.map(vote => (
+                        <tr key={vote.id} className="text-center">
                             <td>
                                 <Image
                                     src={vote.breed.imageUrl}
@@ -34,8 +34,8 @@ export default async function Ranking() {
                             <td className="capitalize">{vote.breed.name}</td>
                             <td>{vote.votes}</td>
                         </tr>
-                    </tbody>
-                ))}
+                    ))}
+                </tbody>
             </table>
         </div >
     )
